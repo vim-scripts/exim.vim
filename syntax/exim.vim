@@ -1,7 +1,7 @@
 " Vim syntax file
-" Language: Exim configuration file exim.conf
+" Language: Exim4 configuration file exim.conf
 " Maintainer: David Ne\v{c}as (Yeti) <yeti@physics.muni.cz>
-" Last Change: 2003-05-18
+" Last Change: 2004-02-06
 " URL: http://trific.ath.cx/Ftp/vim/syntax/exim.vim
 " Required Vim Version: 6.0
 
@@ -58,11 +58,11 @@ syn keyword eximStringOperationName address base62 domain escape eval expand fro
 syn keyword eximStringOperationName extract hash hmac length lookup nhash perl readfile readsocket run sg substr tr contained
 syn match eximStringOperationName "\<if\>" contained nextgroup=eximOperationConditionName skipwhite
 syn match eximStringOperationName "\<r\=h\(eader\)\=_[-a-zA-Z0-9_]\+\>"
-syn keyword eximStringOperationName quote quote_cdb quote_dbm[nz] quote_dsearch quote_lsearch quote_nis[plus] quote_wildlsearch quote_dnsdb quote_ldap[dn] quote_ldapm quote_mysql quote_nisplus quote_oracle quote_passwd quote_pgsql quote_testdb quote_whoson contained
+syn keyword eximStringOperationName quote quote_cdb quote_dbm[nz] quote_dsearch quote_lsearch quote_nis[plus] quote_wildlsearch quote_dnsdb quote_ldap[dn] quote_ldapm quote_local_part quote_mysql quote_nisplus quote_oracle quote_passwd quote_pgsql quote_testdb quote_whoson contained
 syn match eximStringOperationName "\<\(n\=hash\|substr\)\(_-\=\d\+\)\{1,2}\>" contained
 syn match eximStringOperationName "\<length_-\=\d\+\>" contained
 " 11.6 Expansion conditions
-syn keyword eximOperationConditionName crypteq def eq exists first_delivery ldpauth match pam pwcheck queue_running radius contained containedin=eximBracedGroup
+syn keyword eximOperationConditionName crypteq def eq eqi exists first_delivery ldpauth match pam pwcheck queue_running radius contained containedin=eximBracedGroup
 " 11.7 Combining expansion conditions
 syn keyword eximOperationConditionName or and contained containedin=eximBracedGroup
 " 11.8 Expansion variables
@@ -79,6 +79,8 @@ syn keyword eximExpansionVariable rcpt_count rcpt_defer_count rcpt_fail_count re
 syn keyword eximExpansionVariable sender_address sender_address_domain sender_address_local_part sender_fullhost sender_helo_name sender_host_address sender_host_authenticated sender_host_name sender_host_port sender_ident sender_rcvhost contained
 syn keyword eximExpansionVariable smtp_command_argument spool_directory thisaddress tls_certificate_verified tls_cipher tls_peerdn contained
 syn keyword eximExpansionVariable tod_bsdinbox tod_epoch tod_full tod_log tod_logfile tod_zone tod_zulu value version_number warn_message_delay warn_message_recipients contained
+" Exim 4.30
+syn keyword eximExpansionVariable mailstore_basename local_user_uid local_user_gid received_count contained
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" }}}
 " 6. The Exim run time configuration file {{{
 " 6.2. Configuration file format
@@ -87,7 +89,7 @@ syn keyword eximSectionName acl authenticators routers transports retry rewrite 
 syn region eximRewriteSection start="\s*begin\s\+rewrite" end="^\ze\s*begin\>" end="\%$" contains=TOP,eximOption
 syn region eximRetrySection start="\s*begin\s\+retry" end="^\ze\s*begin\>" end="\%$" contains=TOP,eximOption
 " 6.3. File inclusions in the configuration file
-syn match eximInclude "^\s*.include\>"
+syn match eximInclude "^\s*.include\(_if_exists\)\?\>"
 " 6.4. Macros in the configuration file
 syn region eximMacroDefinition matchgroup=eximMacroName start="^[A-Z]\i*\s*=" end="$" skip="\\\s*$" transparent contains=TOP
 " 6.5. Conditional skips in the configuration file
@@ -137,7 +139,7 @@ syn keyword eximOption daemon_smtp_port local_interfaces pid_file_path
 " 13.10. Resource control
 syn keyword eximOption check_log_inodes check_log_space check_spool_inodes check_spool_space deliver_queue_load_max smtp_load_reserve queue_only_load
 " 13.11. Policy controls
-syn keyword eximOption acl_not_smtp acl_smtp_auth acl_smtp_connect acl_smtp_data acl_smtp_etrn acl_smtp_expn acl_smtp_helo acl_smtp_mail acl_smtp_rcpt acl_smtp_starttls acl_smtp_vrfy header_maxsize header_line_maxsize helo_verify_hosts host_lookup host_reject_connection hosts_treat_as_local local_scan_timeout message_size_limit percent_hack_domains
+syn keyword eximOption acl_not_smtp acl_smtp_auth acl_smtp_connect acl_smtp_data acl_smtp_etrn acl_smtp_expn acl_smtp_helo acl_smtp_mail acl_smtp_rcpt acl_smtp_starttls acl_smtp_vrfy header_maxsize header_line_maxsize helo_verify_hosts host_lookup host_reject_connection hosts_treat_as_local local_scan_timeout message_size_limit percent_hack_domains host_lookup_order
 " 13.12. Callout cache
 syn keyword eximOption callout_domain_negative_expire callout_domain_positive_expire callout_negative_expire callout_positive_expire callout_random_local_part
 " 13.13. TLS
@@ -177,9 +179,13 @@ syn keyword eximOption queue_run_in_order no_queue_run_in_order not_queue_run_in
 " 13.21. Bounce and warning messages
 syn keyword eximOption bounce_message_file bounce_message_text bounce_sender_authentication errors_copy errors_reply_to delay_warning delay_warning_condition ignore_bounce_errors_after return_size_limit warn_message_file
 syn keyword eximOption bounce_return_message no_bounce_return_message not_bounce_return_message
+syn keyword eximOption bounce_return_body no_bounce_return_body not_bounce_return_body
+" XXX New 4.30 keywords, belong nowhere
+syn keyword eximOption tcp_nodelay no_tcp_nodelay not_tcp_nodelay
+syn keyword eximOption smtp_max_synprot_errors
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" }}}
 " 14. Generic options for routers {{{
-syn keyword eximOption address_data condition debug_print domains driver errors_to fallback_hosts group headers_add headers_remove ignore_target_hosts local_part_prefix local_part_suffix local_parts pass_router redirect_router require_files self senders translate_ip_address transport transport_current_directory transport_home_directory user
+syn keyword eximOption address_data cannot_route_message condition debug_print domains driver errors_to fallback_hosts group headers_add headers_remove ignore_target_hosts local_part_prefix local_part_suffix local_parts pass_router redirect_router require_files self senders translate_ip_address transport transport_current_directory transport_home_directory user
 syn keyword eximOption caseful_local_part no_caseful_local_part not_caseful_local_part
 syn keyword eximOption check_local_user no_check_local_user not_check_local_user
 syn keyword eximOption expn no_expn not_expn
@@ -268,6 +274,7 @@ syn keyword eximOption headers_only no_headers_only not_headers_only
 syn keyword eximOption initgroups no_initgroups not_initgroups
 syn keyword eximOption retry_use_local_part no_retry_use_local_part not_retry_use_local_part
 syn keyword eximOption return_path_add no_return_path_add not_return_path_add
+syn keyword eximOption transport_filter_timeout
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" }}}
 " 25. The appendfile transport {{{
 syn keyword eximDriverName appendfile
@@ -289,6 +296,7 @@ syn keyword eximOption use_crlf no_use_crlf not_use_crlf
 syn keyword eximOption use_fcntl_lock no_use_fcntl_lock not_use_fcntl_lock
 syn keyword eximOption use_lockfile no_use_lockfile not_use_lockfile
 syn keyword eximOption use_mbx_lock no_use_mbx_lock not_use_mbx_lock
+syn keyword eximOption maildir_use_size_file no_maildir_use_size_file not_maildir_use_size_file
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" }}}
 " 26. The autoreply transport {{{
 syn keyword eximDriverName autoreply
@@ -338,6 +346,7 @@ syn match eximRewriteFlags "[EFTbcfhrstSQqrw]\+\s*$" contained containedin=eximR
 " 31. Retry configuration {{{
 " 31.2. Retry rules for specific errors
 syn keyword eximRetryCondition auth_failed refused_MX refused_A refused timeout_connect timeout_DNS timeout contained containedin=eximRetrySection
+syn keyword eximRetryCondition timeout timeout_A timeout_connect_A timeout_MX timeout_connect_MX contained containedin=eximRetrySection
 syn match eximRetryCondition "\<quota\(_\d\+[wdhms]\)*\>" contained containedin=eximRetrySection
 syn match eximRetryCondition "\s\zs\*\ze\s" contained containedin=eximRetrySection
 " 31.3. Retry rule parameters
